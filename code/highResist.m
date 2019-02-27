@@ -1,4 +1,4 @@
-function highResist(lowCond,highCond, bottleL, bottleW)
+function [bottleI] = highResist(lowCond,highCond, nx, ny, bottleL, bottleW, flag)
 %HIGHRESIST Electronstatic simulation including high resistivity regions to create bottleneck
 %   highResist(lowCond,highCond, bottleL, bottleW)
 %   Inputs:
@@ -8,8 +8,6 @@ function highResist(lowCond,highCond, bottleL, bottleW)
 %		bottleW - Width of the bottleneck created by the resistive squares
 
 %Set L and W to a constant size, only change size of resistive region
-nx = 300;
-ny = 200;
 
 xLowBound = (nx./2 - bottleL./2);
 xHighBound = (nx./2 + bottleL./2);
@@ -28,11 +26,13 @@ for i = 1:nx
     end
 end
 
-surf(cmap, 'edgecolor','none');
-title('Conduction Map for Bottle Neck of Width 50 Units and Length 50 Units', 'Interpreter', 'Latex');
-xlabel('X Dimension (Units)', 'Interpreter', 'Latex');
-ylabel('Y Dimension (Units)', 'Interpreter', 'Latex');
-set(gca, 'FontSize', 15);
+if(strcmp(flag, 'graph'))
+	surf(cmap, 'edgecolor','none');
+	title('Conduction Map for Bottle Neck of Width 50 Units and Length 50 Units', 'Interpreter', 'Latex');
+	xlabel('X Dimension (Units)', 'Interpreter', 'Latex');
+	ylabel('Y Dimension (Units)', 'Interpreter', 'Latex');
+	set(gca, 'FontSize', 15);
+end
 
 %Generate and populate G matrix
 solutMat = zeros(nx,ny);
@@ -115,42 +115,59 @@ for i = 1:nx
 		solutMat(i,j) = solutVect(n);
 	end
 end
-figure()
-surf(solutMat, 'edgecolor', 'none')
-rotate3d on;
-title("Voltage Across Bottleneck of Dimensions 50 Units x 50 Units", 'Interpreter', 'Latex')
-xlabel("X Dimension (Units)", 'Interpreter', 'Latex');
-ylabel("Y Dimension (Units)", 'Interpreter', 'Latex');
-set(gca, 'FontSize', 15);
+
+
+if(strcmp(flag, 'graph'))
+	figure()
+	surf(solutMat, 'edgecolor', 'none')
+	rotate3d on;
+	title("Voltage Across Bottleneck of Dimensions 50 Units x 50 Units", 'Interpreter', 'Latex')
+	xlabel("X Dimension (Units)", 'Interpreter', 'Latex');
+	ylabel("Y Dimension (Units)", 'Interpreter', 'Latex');
+	set(gca, 'FontSize', 15);
+end
+
 
 
 
 %Generate electric field graph given that electric field is gradient of potential
 [Ex, Ey] = gradient(solutMat);
-figure();
-Equiver = quiver(Ex, Ey);
-title("Electric Field within Bottleneck of Dimensions 50 Units x 50 Units", 'Interpreter', 'Latex')
-xlabel("X Dimension (Units)", 'Interpreter', 'Latex');
-ylabel("Y Dimension (Units)", 'Interpreter', 'Latex');
-set(gca, 'FontSize', 15);
-figure();
-Equiverzoom = quiver(Ex, Ey);
-title("Electric Field Around High Resistivity Boundary", 'Interpreter', 'Latex')
-xlabel("X Dimension (Units)", 'Interpreter', 'Latex');
-ylabel("Y Dimension (Units)", 'Interpreter', 'Latex');
-set(gca, 'FontSize', 15);
-xlim([65 85]);
-ylim([110 190]);
+if(strcmp(flag, 'graph'))
+	figure();
+	Equiver = quiver(Ex, Ey);
+	title("Electric Field within Bottleneck of Dimensions 50 Units x 50 Units", 'Interpreter', 'Latex')
+	xlabel("X Dimension (Units)", 'Interpreter', 'Latex');
+	ylabel("Y Dimension (Units)", 'Interpreter', 'Latex');
+	set(gca, 'FontSize', 15);
+	figure();
+	Equiverzoom = quiver(Ex, Ey);
+	title("Electric Field Around High Resistivity Boundary", 'Interpreter', 'Latex')
+	xlabel("X Dimension (Units)", 'Interpreter', 'Latex');
+	ylabel("Y Dimension (Units)", 'Interpreter', 'Latex');
+	set(gca, 'FontSize', 15);
+	xlim([65 85]);
+	ylim([110 190]);
+end
 
 %Generate current density J by multiplying E by sigma for each point
-figure();
 Jx = cmap.*Ex;
 Jy = cmap.*Ey;
-Equiver = quiver(Jx, Jy);
-title("Current Density within Bottleneck of Dimensions 50 Units x 50 Units", 'Interpreter', 'Latex')
-xlabel("X Dimension (Units)", 'Interpreter', 'Latex');
-ylabel("Y Dimension (Units)", 'Interpreter', 'Latex');
-set(gca, 'FontSize', 15);
+if(strcmp(flag, 'graph'))
+	figure();
+	Equiver = quiver(Jx, Jy);
+	title("Current Density within Bottleneck of Dimensions 50 Units x 50 Units", 'Interpreter', 'Latex')
+	xlabel("X Dimension (Units)", 'Interpreter', 'Latex');
+	ylabel("Y Dimension (Units)", 'Interpreter', 'Latex');
+	set(gca, 'FontSize', 15);
+end
+
+
+%Take the vector through the center of the sample for integration
+%Ignore x vectors, should be very uniform in only y direction through bottle neck at the center point
+JyA = Jy(uint8(ny./2),:);
+
+bottleI = trapz(JyA);
+
 
 
 

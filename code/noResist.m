@@ -99,24 +99,26 @@ set(gca, 'FontSize', 15);
 
 V = zeros(nx, ny); %Swapped because of Matlab's handling of rows columns
 
-analytical = @(x,y,n) (1./n).*cosh(n.*pi.*x).*sin(n.*pi.*y)./cosh(n.*pi);
+analytical = @(x,y,n) (1./n)*sin(n.*pi.*y).*cosh(n.*pi.*x)./cosh(n.*pi);
 
-figure()
-surf(V, 'edgecolor', 'none');
-for k = 1:2:maxN
-	for i = 1:nx 
-		for j = 1:ny
-			V(i, j) = V(i,j) + analytical(i, j, k);			
+%.*cosh(n.*pi.*x).*sin(n.*pi.*y)./cosh(n.*pi);
 
-		end
-	end
-	surf(V, 'edgecolor', 'none');
-	title(num2str(k));
-	pause(1);
-end
+% figure()
+% surf(V, 'edgecolor', 'none');
+% for k = 1:2:maxN
+% 	for i = 1:nx 
+% 		for j = 1:ny
+% 			V(i, j) = V(i,j) + analytical(i, j, k);			
 
-V = 4./pi.*V;
-surf(V, 'edgecolor', 'none');
+% 		end
+% 	end
+% 	surf(V, 'edgecolor', 'none');
+% 	title(num2str(k));
+% 	pause(1);
+% end
+
+% V = 4./pi.*V;
+% surf(V, 'edgecolor', 'none');
 
 
 end
